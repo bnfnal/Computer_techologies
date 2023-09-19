@@ -71,7 +71,7 @@ int main() {
         }
 
         if (thread_num == 0){
-            int j = block_size * (threads_count - 1);
+            int j = block_size * threads_count;
             while(j < n){
                 c[j] = a[j] + b[j];
                 j++;
