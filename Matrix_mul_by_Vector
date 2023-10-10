@@ -1,0 +1,76 @@
+#include <iostream>
+#include <fstream>
+#include <omp.h>
+
+// умножение матрицы на вектор
+// выбираем short_int, чтобы большие матрицы не занимали много памяти
+// time_t ts = time (NULL); // получить текущую дату, выраженную в секундах
+
+void InitData(short int *a, short int *b, short int *c, size_t n)
+{
+    for(int i=0; i<n; i++){
+        b[i] = 1;
+        c[i] = 0;
+        for(int j=0; j<n; j++) {
+            a[i*n + j] = 1;
+        }
+    }
+}
+
+void InitC(short int *c, size_t n)
+{
+    for(int i=0; i<n; i++){
+        c[i] = 0;
+    }
+}
+
+void SerialProduct(short int *a, short int *b, short int *c, size_t n)
+{
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            c[i] += a[i * n + j] * b[j];
+        }
+    }
+}
+
+void ParallelProduct(short int *a, short int *b, short int *c, size_t n)
+{
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            c[i] += a[i * n + j] * b[j];
+        }
+    }
+}
+
+int main() {
+    size_t minLength = 1000;
+    size_t maxLength = 50000;
+    time_t ts = time(NULL);
+    time_t tp = time(NULL);
+
+    short int *a = new short int[maxLength*maxLength];
+    short int *b = new short int[maxLength];
+    short int *c = new short int[maxLength];
+
+    InitData(a, b, c, maxLength);
+
+    std::ofstream file("time.txt");
+
+    for(long int n = minLength; n < maxLength + 1; n += 1000) {
+
+        ts = time(NULL);
+        SerialProduct(a, b, c, n);
+        ts = time(NULL) - ts;
+        InitC(c, n);
+
+        tp = time(NULL);
+        ParallelProduct(a, b, c, n);
+        tp = time(NULL) - tp;
+        InitC(c, n);
+
+        file << "n =  " << n << " ts = " << ts << " tp = " << tp << std::endl;
+    }
+    file.close();
+    return 0;
+}
