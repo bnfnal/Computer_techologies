@@ -11,10 +11,12 @@ int main() {
     int *a = new int[n];
     int *b = new int[n];
     int *c = new int[n];
+    int *d = new int[n];
     for(int i=0; i<n; i++){
         a[i] = 1;
         b[i] = 2;
         c[i] = 0;
+        d[i] = 0;
     }
 
     cout << "a: ";
@@ -83,6 +85,19 @@ int main() {
     cout << "c: ";
     for(int i=0; i<n; i++){
         cout << c[i] << " ";
+    }
+    cout << endl;
+
+    // в omp есть встроенное распараллеливание цикла for
+
+#pragma omp parallel for
+    for(int i = 0; i < n; i++) {
+        d[i] += a[i] + b[i];
+    }
+
+    cout << "d: ";
+    for(int i=0; i<n; i++){
+        cout << d[i] << " ";
     }
     cout << endl;
 
