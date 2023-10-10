@@ -16,6 +16,7 @@ int main() {
         b[i] = 2;
     }
     int c = 0;
+    int d = 0;
 
     int *term = new int[tc];
     for(int i=0; i<tc; i++){
@@ -84,6 +85,15 @@ int main() {
     }
 
     cout << "c = " << c << endl;
+
+    // встроенное распараллеливание
+
+#pragma omp parallel for reduction (+:d)
+    for(int i = 0; i < n; i++) {
+        d += a[i] * b[i];
+    }
+
+    cout << "d = " << d << endl;
 
     return 0;
 }
