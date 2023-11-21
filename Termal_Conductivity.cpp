@@ -9,20 +9,22 @@ using namespace std;
 
 int main() {
     int N = 10;
-    float T = 10;
-    float H = 1;
-    float L = 1;
-    float k = 1;
-    float dx = H/N;
-    float dy = L/N;
-    float dt = (dx * dx)/4;
+    double T = 5;
+    double Time = 200;
+    double H = 1;
+    double L = 1;
+    double k = 1;
+    double dx = H/N;
+    double dy = L/N;
+    double dt = (dx * dx)/4;
 
-    float **U_new = new float* [N];
-    float **U_old = new float* [N];
+
+    double **U_new = new double* [N];
+    double **U_old = new double* [N];
 
     for(int i = 0; i < N; i += 1) {
-        U_new[i] = new float[N];
-        U_old[i] = new float[N];
+        U_new[i] = new double[N];
+        U_old[i] = new double[N];
 
         for(int j = 0; j < N; j += 1) {
             U_new[i][j] = 0;
@@ -37,9 +39,16 @@ int main() {
         cout << endl;
     }
 
-    int Tn = (int)(T/dt);
+    int NT = (int)(Time/dt);
+    double accuracy = 0.00001;
+    int ind = 0;
+    double max_U = 0;
 
-    for(int m = 0; m <= 2; m += 1) {
+    for(int m = 0; m <= NT; m += 1) {
+        ind = 0;
+        max_U = 0;
+        // parallel for + вывод в файл
+        // как улучшить, чтобы не терять время
         for(int i = 0; i < N; i += 1) {
             for(int j = 0; j < N; j += 1) {
                 if (i == 0 || i == N-1 || j == 0 || j == N-1){
@@ -47,8 +56,16 @@ int main() {
                 }
                 else{
                     U_new[i][j] = U_old[i][j] + dt*k*((U_old[i+1][j] - 2*U_old[i][j] + U_old[i-1][j])/dx + (U_old[i][j+1] - 2*U_old[i][j] + U_old[i][j-1])/dy);
+                    if (abs(U_new[i][j] - U_old[i][j]) / U_old[i][j] > max_U){
+                        max_U = abs(U_new[i][j] - U_old[i][j]) / U_old[i][j];
+                    }
                 }
             }
+        }
+
+        if (max_U < accuracy){
+            cout << endl << "accuracy = " << accuracy << ",  m = " << m << ",   Time = " << m*dt << ",   NT = " << NT << endl;
+            break;
         }
 
         auto change = U_old;
